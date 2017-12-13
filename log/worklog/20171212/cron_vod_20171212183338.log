@@ -1,0 +1,17 @@
+<p class="text-info">  20171212-18:34:30 +08:00 172.16.199.247  exec  INSERT INTO `work_log` (`id`, `file_name`, `create_time`, `description`, `type`, `status`, `log_path`, `update_time`,`request_type`) VALUES 
+ ('cron_vod_20171212183338', 'cron_vod_20171212183338.xls','2017-12-12 18:34:30', '2017-11-01 00:00:00至2017-11-30 00:00:00', '1', '0', 'log/worklog/20171212/cron_vod_20171212183338.log', '2017-12-12 18:34:30',''); </p> 
+<p class="text-success">  20171212-18:34:30 +08:00 172.16.199.247  create work id cron_vod_20171212183338  </p> 
+<p class="text-info">  20171212-18:34:30 +08:00 172.16.199.247  Ready to load template templates/template1.xls  </p> 
+<p class="text-success">  20171212-18:34:30 +08:00 172.16.199.247  load template templates/template1.xls  success  </p> 
+<p class="text-info">  20171212-18:34:30 +08:00 172.16.199.247  Ready to connect db 172.16.16.65 xlsm </p> 
+<p class="text-success">  20171212-18:34:30 +08:00 172.16.199.247  db 172.16.16.65 xlsm  connected  </p> 
+<p class="text-info">  20171212-18:34:30 +08:00 172.16.199.247   query sql ：SELECT distinct (@i:=@i+1) as i,IF(crm_id!='',crm_id,'88' ) as crm_id,product_name,category_top,category_parent,cp_name,series_name,program_name,
+DATE_FORMAT(ordertime,'%Y/%m/%d') as orderymd,DATE_FORMAT(ordertime,'%H:%i:%s') as orderhis,
+DATE_FORMAT(begintime,'%Y/%m/%d') as beginymd,DATE_FORMAT(begintime,'%H:%i:%s') as beginhis,
+DATE_FORMAT(endtime,'%Y/%m/%d') as endymd,DATE_FORMAT(endtime,'%H:%i:%s') as endhis,
+SEC_TO_TIME(playbegintime) as playbegintime,SEC_TO_TIME(durationlen) as durationlen,
+SEC_TO_TIME(actualtime) as actualtime,SEC_TO_TIME(durationlen-playbegintime) as totaltime,
+caid,buserid,email,amount,isfree FROM view_log,(select @i:=0) as  it  where type=1 and  begintime >= '2017-11-01 00:00:00' and begintime <= '2017-11-30 00:00:00' ORDER BY begintime </p> 
+<p class="text-success">  20171212-18:34:30 +08:00 172.16.199.247   find 0 record  </p> 
+<p class="text-success">  20171212-18:34:30 +08:00 172.16.199.247  save xls  xls/1/20171212/cron_vod_20171212183338.xls </p> 
+<p class="text-info">  20171212-18:34:30 +08:00 172.16.199.247  exec   UPDATE `work_log` SET `status`='5', `update_time`='2017-12-12 18:34:30',`file_size`=5120,`file_path`='xls/1/20171212/cron_vod_20171212183338.xls' WHERE (`id`='cron_vod_20171212183338'); </p> 
