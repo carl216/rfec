@@ -73,7 +73,7 @@ if($total < 1){
                 }else if($key=="request_type"){
                   $tmp_str=$request_type_str[$tmp_str];
                 }else if($key=="status"){
-                  $tmp_str=$status_str[$tmp_str-1];
+                  $tmp_str=$status_str[$tmp_str];
                 }
 
                  echo " <td>";
