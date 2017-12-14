@@ -317,7 +317,7 @@ ob_end_clean();
             <label class="sr-only" for="xls_table_status_format">表格状态文字显示</label>
                   <div class='input-group'>
                   <span class="input-group-addon">表格状态文字显示</span>
-                    <input type='text' id="xls_table_status_format" name="xls_table_status_format" class="form-control input-sm" value="<?php echo $data["xls_table_status_format"] ? $data["xls_table_status_format"] :"初始化,数据打包失败,数据打包失败,数据打包失败,完成,文件被删除";  ?>"  />
+                    <input type='text' id="xls_table_status_format" name="xls_table_status_format" class="form-control input-sm" value="<?php echo $data["xls_table_status_format"] ? $data["xls_table_status_format"] :"初始化,初始化失败,数据采集失败,数据打包失败,文件保存失败,完成,文件被删除";  ?>"  />
                  </div>
              </div>
            <div class="form-group container-fluid">
