@@ -3,6 +3,8 @@
 set_time_limit(1200);//脚本最大执行时间
 date_default_timezone_set("PRC"); //时区设置
 define("DOCROOT",dirname(dirname(__FILE__)));
+//等待文件上传,默认等待5s
+sleep(10);
 $cfg = @parse_ini_file(DOCROOT."/config/system.ini");
 $key_list = explode(',',$cfg['viewlog_format']);
 $category_format_str=$cfg['category_format'];
@@ -29,6 +31,10 @@ function get_viewlog_tar(){
 		@exec($cmd, $out, $ret);
 	}
 	$tar_dir=$cfg['viewlog_path']."/".date("Ymd");
+//目录不存在，则停止解析	
+	if(!is_dir($tar_dir)){
+		die(0);
+	}
 	$tarlist=scandir($tar_dir);
 	$tmp_dir="{$tar_dir}/{$nowtime}";
 	if(!is_dir($tmp_dir)){
@@ -141,11 +147,14 @@ function get_oss_orderinfo($viewlog_data,&$productname,&$ordertime,&$amount){
 	if($viewlog_data['type'] > 0){
 		global $oss_dbh;
 		$sql = <<<EOL
-		SELECT o.paymentTime as ordertime,o.amount,o.productName from orderlog o
-		LEFT JOIN service_product sp on sp.productCode=o.productCode
-		LEFT JOIN content_service cs on cs.serviceId=sp.serviceId
-		WHERE cs.contentId='{$viewlog_data['seriescontentid']}' and o.fuserId='{$viewlog_data['fuserid']}' 
-		and o.paymentTime < '{$viewlog_data['begintime']}' and o.deactiveTime > '{$viewlog_data['begintime']}';
+		SELECT o.paymentTime AS ordertime,o.amount,s.`name` AS productName,
+		IF(o.contentId="{$viewlog_data['seriescontentid']}","0","1") AS num from orderlog o
+		LEFT JOIN service_product AS sp on sp.productCode=o.productCode
+		LEFT JOIN content_service AS cs on cs.serviceId=sp.serviceId
+		LEFT JOIN service AS s on s.contentId=cs.serviceId
+		WHERE cs.contentId='{$viewlog_data['seriescontentid']}' AND o.fuserId='{$viewlog_data['fuserid']}' 
+		AND o.paymentTime < '{$viewlog_data['begintime']}' AND o.deactiveTime > '{$viewlog_data['begintime']}'
+		ORDER BY num ASC limit 0,1;
 EOL;
 	
 		$rs_oss=$oss_dbh->query($sql);

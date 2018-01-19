@@ -36,8 +36,11 @@ get_oss_orderlog($starttime,$endtime);
 function get_oss_orderlog($starttime,$endtime){
 	global $oss_dbh;
 	$sql = <<<EOL
-	SELECT o.id,o.crmId,o.productName,o.contentCategory,o.contentId,o.paymentTime,o.fuserId,o.amount,o.purchaseType FROM `orderlog` as o 
-	where o.paymentTime >= '{$starttime}' and o.paymentTime < '{$endtime}';
+	SELECT DISTINCT(o.id),o.crmId,s.`name` AS productName,o.contentCategory,
+	o.contentId,o.paymentTime,o.fuserId,o.amount,o.purchaseType FROM `orderlog` AS o
+	LEFT JOIN service_product AS sp ON sp.productCode = o.productCode
+	LEFT JOIN service AS s ON s.contentId = sp.serviceId
+	WHERE o.paymentTime >= '{$starttime}' AND o.paymentTime < '{$endtime}';
 EOL;
 	
 	$rs_oss=$oss_dbh->query($sql);
