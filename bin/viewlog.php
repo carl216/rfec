@@ -3,7 +3,7 @@
 set_time_limit(1200);//脚本最大执行时间
 date_default_timezone_set("PRC"); //时区设置
 define("DOCROOT",dirname(dirname(__FILE__)));
-//等待文件上传,默认等待5s
+//等待文件上传,默认等待10s
 sleep(10);
 $cfg = @parse_ini_file(DOCROOT."/config/system.ini");
 $key_list = explode(',',$cfg['viewlog_format']);
@@ -63,20 +63,39 @@ function parse_viewlog($viewlog){
 	echo "parse_viewlog {$viewlog}";
 	global $key_list;
 	$val_list = explode('|',$viewlog);
-	$key_count= count($key_list);
-	if( $key_count == count($val_list)){
+	$key_count = count($key_list);
+	$val_count = count($val_list);
+	if( $key_count - $val_count < 2 ){
 		$viewlog_data;
-		for($i=0;$i<$key_count;$i++){			
-			$viewlog_data[$key_list[$i]]=urldecode($val_list[$i]);
+		for($i=0;$i<$key_count;$i++){
+			if($i >= $val_count){
+				$viewlog_data[$key_list[$i]]=0;
+			}else{
+				$viewlog_data[$key_list[$i]]=urldecode($val_list[$i]);
+			}			
 		}
 		$sql;
-		if(check_viewlog_id($viewlog_data['id'],$begintime)){
+		if(check_viewlog_id($viewlog_data['id'],$begintime,$durationlen,$playbegintime)){
 			if($viewlog_data['endtime']!=''){
 				$endtime=$viewlog_data['endtime'];
 				//echo $begintime . "-".$endtime."<br>";
 				$actualtime=strtotime($endtime)-strtotime($begintime);
+				$timeshiftduration=$viewlog_data['timeshiftduration'];
+				$durationlen=$viewlog_data['durationlen'];
+				//保护，影片实际收看时间大于现实收看时间时，正片自动换算偏移量，广告修改退出播放时间
+				$tmp_s=$durationlen-$timeshiftduration-$playbegintime-$actualtime;
+				if($tmp_s > 0 ){
+					if($viewlog_data['type']==1){
+						$timeshiftduration=$timeshiftduration + $tmp_s;
+					}else{
+						$durationlen=$durationlen-$tmp_s;
+					}
+					
+					log_print("waring update viewlog session_id {$viewlog_data['id']} , real time is longer than viewing.. ".$viewlog);
+				}
+
 				$sql=<<<EOL
-				UPDATE `view_log` SET `endtime`='{$endtime}',`actualtime`='{$actualtime}',`init`=1 WHERE id='{$viewlog_data['id']}';
+				UPDATE `view_log` SET `endtime`='{$endtime}',`actualtime`='{$actualtime}',`durationlen`='{$durationlen}',`timeshiftduration`='{$timeshiftduration}',`init`=1 WHERE id='{$viewlog_data['id']}';
 EOL;
 			insert_viewlog($viewlog_data['id'],$sql);
 				//echo $sql."<br>";
@@ -93,13 +112,21 @@ EOL;
 					log_print("waring add viewlog session_id {$viewlog_data['id']} ,cpname undefined ".$viewlog);
 				}
 				$isfree=$amount>0 |0;	
-				$sql= <<<EOL
+				$actualtime=900;
+				if($viewlog_data['durationlen'] > 900){
+					$actualtime=rand(1,900);
+				}else if($viewlog_data['type'] == 1){
+					$actualtime=rand(1,$viewlog_data['durationlen']);
+				}
+				//初始影片结束播放时间= 现实收看时间+书签时间
+				$durationlen=$actualtime+$viewlog_data['playbegintime'];
+			$sql= <<<EOL
 			INSERT INTO `view_log` (`id`, `crm_id`, `product_name`, `category_top`, `category_parent`, 
 			`cp_name`, `series_name`,`program_name`, `ordertime`, `begintime`, `endtime`,`playbegintime`,`durationlen`, `caid`, `buserid`,
-			`email`, `amount`, `isfree`,`type`,`actualtime`) VALUES ('{$viewlog_data['id']}','{$viewlog_data['crmid']}', '{$productname}','{$topcategoryname}',
+			`email`, `amount`, `isfree`,`type`,`actualtime`,`timeshiftduration`) VALUES ('{$viewlog_data['id']}','{$viewlog_data['crmid']}', '{$productname}','{$topcategoryname}',
 			'{$parentcategorname}','{$cpname}', '{$viewlog_data['seriesname']}', '{$viewlog_data['programname']}' ,{$ordertime}, '{$viewlog_data['begintime']}',
-			SUBDATE('{$viewlog_data['begintime']}',INTERVAL -15 MINUTE),'{$viewlog_data['playbegintime']}', '{$viewlog_data['durationlen']}','{$caid}', '{$extend_user_id}', '{$email}',
-			'{$amount}', '{$isfree}','{$viewlog_data['type']}','900');
+			SUBDATE('{$viewlog_data['begintime']}',INTERVAL -{$actualtime} SECOND),'{$viewlog_data['playbegintime']}', '{$durationlen}','{$caid}', '{$extend_user_id}', '{$email}',
+			'{$amount}', '{$isfree}','{$viewlog_data['type']}','{$actualtime}',0);
 EOL;
 			//echo $sql."<br>";
 			insert_viewlog($viewlog_data['id'],$sql);
@@ -116,16 +143,18 @@ EOL;
 /**
  * 检查此条记录是否在本地存在
  */
-function check_viewlog_id($id,&$begintime){
+function check_viewlog_id($id,&$begintime,&$durationlen,&$playbegintime){
 	global $local_dbh;
 	$sql = <<<EOL
-	SELECT begintime from view_log 
+	SELECT begintime,durationlen,playbegintime from view_log 
 	where id="{$id}";
 EOL;
 	$local_oss=$local_dbh->query($sql);
 	$old_data=$local_oss->fetch(PDO::FETCH_NAMED);
 	if($old_data){
 		$begintime=$old_data['begintime'];
+		$durationlen=$old_data['durationlen'];
+		$playbegintime=$old_data['playbegintime'];
 		return true;
 	}else{
 		return false;
