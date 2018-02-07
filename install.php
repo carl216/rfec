@@ -153,7 +153,7 @@ ob_end_clean();
                 <label class="sr-only" for="viewlog_format">收视纪录解析格式</label>
                 <div class='input-group' >
                   <span class="input-group-addon">收视纪录解析格式</span>
-                  <input type='text' id="viewlog_format" name="viewlog_format" class="form-control input-sm" value="<?php echo $data["viewlog_format"]? $data["viewlog_format"] :"id,crmid,categoryidentityno,cpname,seriesname,programname,seriescontentid,begintime,endtime,playbegintime,durationlen,caid,fuserid,type" ?>"  <?php echo $carl ? '':'readonly' ?> />
+                  <input type='text' id="viewlog_format" name="viewlog_format" class="form-control input-sm" value="<?php echo $data["viewlog_format"]? $data["viewlog_format"] :"id,crmid,categoryidentityno,cpname,seriesname,programname,seriescontentid,begintime,endtime,playbegintime,durationlen,caid,fuserid,type,timeshiftduration" ?>"  <?php echo $carl ? '':'readonly' ?> />
                 </div>
               </div>    
               <div class="form-group container-fluid">
