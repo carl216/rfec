@@ -1,0 +1,17 @@
+<p class="text-info">  20180207-14:26:07 +08:00 ::1  exec  INSERT INTO `work_log` (`id`, `file_name`, `create_time`, `description`, `type`, `status`, `log_path`, `update_time`,`request_type`) VALUES 
+ ('web_vod_20180207142605', 'web_vod_20180207142605.xls','2018-02-07 14:26:07', '2018-02-06 16:25:46至2018-02-08 14:26:46', '1', '0', 'log/worklog/20180207/web_vod_20180207142605.log', '2018-02-07 14:26:07','1'); </p> 
+<p class="text-success">  20180207-14:26:08 +08:00 ::1  create work id web_vod_20180207142605  </p> 
+<p class="text-info">  20180207-14:26:08 +08:00 ::1  Ready to load template templates/template1.xls  </p> 
+<p class="text-success">  20180207-14:26:08 +08:00 ::1  load template templates/template1.xls  success  </p> 
+<p class="text-info">  20180207-14:26:08 +08:00 ::1  Ready to connect db 172.16.16.65 xlsm </p> 
+<p class="text-success">  20180207-14:26:08 +08:00 ::1  db 172.16.16.65 xlsm  connected  </p> 
+<p class="text-info">  20180207-14:26:08 +08:00 ::1   query sql ：SELECT distinct (@i:=@i+1) as i,IF(crm_id!='',crm_id,'88' ) as crm_id,product_name,category_top,category_parent,cp_name,series_name,program_name,
+DATE_FORMAT(ordertime,'%Y/%m/%d') as orderymd,DATE_FORMAT(ordertime,'%H:%i:%s') as orderhis,
+DATE_FORMAT(begintime,'%Y/%m/%d') as beginymd,DATE_FORMAT(begintime,'%H:%i:%s') as beginhis,
+DATE_FORMAT(endtime,'%Y/%m/%d') as endymd,DATE_FORMAT(endtime,'%H:%i:%s') as endhis,
+SEC_TO_TIME(playbegintime) as playbegintime,SEC_TO_TIME(durationlen) as durationlen,
+SEC_TO_TIME(actualtime) as actualtime,SEC_TO_TIME(durationlen-playbegintime-timeshiftduration) as totaltime,
+caid,buserid,email,amount,isfree FROM view_log,(select @i:=0) as  it  where type=1 and  begintime >= '2018-02-06 16:25:46' and begintime <= '2018-02-08 14:26:46' ORDER BY begintime </p> 
+<p class="text-success">  20180207-14:26:08 +08:00 ::1   find 11 record  </p> 
+<p class="text-success">  20180207-14:26:09 +08:00 ::1  save xls  xls/1/20180207/web_vod_20180207142605.xls </p> 
+<p class="text-info">  20180207-14:26:09 +08:00 ::1  exec   UPDATE `work_log` SET `status`='5', `update_time`='2018-02-07 14:26:07',`file_size`=9728,`file_path`='xls/1/20180207/web_vod_20180207142605.xls' WHERE (`id`='web_vod_20180207142605'); </p> 

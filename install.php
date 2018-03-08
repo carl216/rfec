@@ -48,7 +48,7 @@ ob_end_clean();
     if($_POST){
     $initxt="";
      foreach($_POST as $key=>$val){
-      $initxt.=$key."=".$val."\n";
+      $initxt.=$key."=\"".$val."\"\n";
      }
      $status=true;
      try{
