@@ -223,7 +223,6 @@ EOL;
  //  echo $sql."<br>";;
  //  print_r($data_cms);
    foreach($data_cms as $category){
-	   $topcategoryname = $category['name'];
 	   if($category['identityno'] == $identityno){
 		   $parentcategorname = $category['name'];
 	   }else{
