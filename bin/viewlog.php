@@ -123,10 +123,10 @@ EOL;
 			$sql= <<<EOL
 			INSERT INTO `view_log` (`id`, `crm_id`, `product_name`, `category_top`, `category_parent`, 
 			`cp_name`, `series_name`,`program_name`, `ordertime`, `begintime`, `endtime`,`playbegintime`,`durationlen`, `caid`, `buserid`,
-			`email`, `amount`, `isfree`,`type`,`actualtime`,`timeshiftduration`) VALUES ('{$viewlog_data['id']}','{$viewlog_data['crmid']}', '{$productname}','{$topcategoryname}',
+			`email`, `amount`, `isfree`,`type`,`actualtime`,`timeshiftduration`,`contentid`) VALUES ('{$viewlog_data['id']}','{$viewlog_data['crmid']}', '{$productname}','{$topcategoryname}',
 			'{$parentcategorname}','{$cpname}', '{$viewlog_data['seriesname']}', '{$viewlog_data['programname']}' ,{$ordertime}, '{$viewlog_data['begintime']}',
 			SUBDATE('{$viewlog_data['begintime']}',INTERVAL -{$actualtime} SECOND),'{$viewlog_data['playbegintime']}', '{$durationlen}','{$caid}', '{$extend_user_id}', '{$email}',
-			'{$amount}', '{$isfree}','{$viewlog_data['type']}','{$actualtime}',0);
+			'{$amount}', '{$isfree}','{$viewlog_data['type']}','{$actualtime}',0,'{$viewlog_data['seriescontentid']}');
 EOL;
 			//echo $sql."<br>";
 			insert_viewlog($viewlog_data['id'],$sql);

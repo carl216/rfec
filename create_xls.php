@@ -1,9 +1,13 @@
 <?php 
 include("util.php");
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+error_reporting(E_ALL & ~E_NOTICE);
 ob_end_clean();
 require_once 'core/phpexcel/Classes/PHPExcel.php';
 require_once 'core/phpexcel/Classes/PHPExcel/IOFactory.php';
 require_once 'core/phpexcel/Classes/PHPExcel/Reader/Excel5.php';
+include_once("core/XLSXWriter/xlsxwriter.class.php");
 $page_name="create_xls";
 ?>
 <!DOCTYPE html>
@@ -358,10 +362,8 @@ $sheet = $objPHPExcel->getSheet(0);
 $highestRow = $sheet->getHighestRow(); // 取得总行数
 $highestColumn = $sheet->getHighestColumn(); // 取得总列数
 $objTitle=$objPHPExcel->getActiveSheet()->getTitle();
-$excel = new PHPExcel();
-$excel->setActiveSheetIndex(0);
-$excel->getActiveSheet()->setTitle($objTitle);
 $key_arr;
+$title_arr;
 $sql;
 for($i=ord('A'); $i <= ord($highestColumn); $i++){
 $title=$objPHPExcel->getActiveSheet()->getCell(chr($i)."1")->getValue();
@@ -370,11 +372,9 @@ $key=$objPHPExcel->getActiveSheet()->getCell(chr($i)."2")->getValue();
 if( $title == "sql" ){
 	$sql=$key;
 	break;
+}else{
+  $title_arr[$title]='string';
 }
-
- 
-$excel->getActiveSheet()->setCellValue(chr($i)."1", $title);
-$excel->getActiveSheet()->getColumnDimension(chr($i))->setAutoSize(true);
 $key_arr[$i]=$key;
 }
 if(!$sql){
@@ -475,43 +475,37 @@ $tmp=2;
 //echo "highestColumn:".$highestColumn;
 $starttime=time();
 $sheet_line_max = isset($cfg['sheet_line_max']) ? $cfg['sheet_line_max'] : 50000;
+$writer = new XLSXWriter();
+$writer->setAuthor('Carl'); 
+$sname='Sheet';
 for($i=0;$i< $len; $i++ ){
-$message="";
-	for($j=ord('A'); $j < ord($highestColumn); $j++){
-		$key=$key_arr[$j];
-		$excel->getActiveSheet()->setCellValueExplicit(chr($j).($i+2),(!$key ? "" : $retarr[$i][$key]),PHPExcel_Cell_DataType::TYPE_STRING);
-		$message.= (!$key ? "" : $retarr[$i][$key])."  ";
+if($i%$sheet_line_max==0){
+  $sname=$objTitle.$i;
+  $writer->writeSheetHeader($sname, $title_arr );
+  //$writer->writeSheetRow($sname, $title_arr);
+}
+  $writer->writeSheetRow($sname, $retarr[$i]);
 
-  }
-  if($i > 0 && $i%$sheet_line_max==0){
-    $excel->createSheet();  
-    $excel->setActiveSheetIndex($i/$sheet_line_max);
-    $excel->getActiveSheet()->setTitle($objTitle."_".($i/$sheet_line_max));
-  }
+
 	$nowtime=time();
-	if(($nowtime-$starttime)<1){
+	if(($nowtime-$starttime)<2){
+
 			flush();
 		   continue;
 	}else{
-		$starttime=$nowtime;
-	}
-	
-?>
+    $starttime=$nowtime;
+    ?>
+ <script type="text/javascript">
 
-<script type="text/javascript">
-
-  $("#myprogressval").width("<?php echo floor((($i+1)/$len)*100)?>%");
-  $("#myprogressval").html("<?php echo ($i+1).'/'.$len; ?>")
+$("#myprogressval").width("<?php echo floor((($i+1)/$len)*100)?>%");
+$("#myprogressval").html("<?php echo ($i+1).'/'.$len; ?>")
 </script>	
+    <?php  
 
-<?php
-//echo $i;
-  flush(); 
-
+	}
 }
-
-
 ?>
+
 
 <script type="text/javascript">
   $debugtxt=$("#debug").html();
@@ -520,17 +514,16 @@ $message="";
 </script>	
 <?php
 flush();
-$write = new PHPExcel_Writer_Excel5($excel);
-$write->save($file_path.$_POST['xls_id'].".xls");
-$file_size=filesize($file_path.$_POST['xls_id'].".xls");
-debug("save xls  {$file_path}{$_POST['xls_id']}.xls","success");
+$writer->writeToFile($file_path.$_POST['xls_id'].".xlsx");
+$file_size=filesize($file_path.$_POST['xls_id'].".xlsx");
+debug("save xls  {$file_path}{$_POST['xls_id']}.xlsx","success");
 $sys_status="5";
 ?>
 <script type="text/javascript">
 	$("#myprogress").hide();
 	$(".ystep1").setStep(5);
   $debugtxt=$("#debug").html();
-  $debugtxt+='<div class="alert alert-success  alert-dismissible fade in" role="alert"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button><?php echo date("Y-m-d H:i:s") ?><strong> 執行成功，文件名 <?php echo "{$_POST['xls_id']}.xls" ?> ，<a href="<?php echo "{$file_path}{$_POST['xls_id']}.xls" ?>" class="fa fa-download" aria-hidden="true">點擊下载</a></strong> </div>'
+  $debugtxt+='<div class="alert alert-success  alert-dismissible fade in" role="alert"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button><?php echo date("Y-m-d H:i:s") ?><strong> 執行成功，文件名 <?php echo "{$_POST['xls_id']}.xlsx" ?> ，<a href="<?php echo "{$file_path}{$_POST['xls_id']}.xlsx" ?>" class="fa fa-download" aria-hidden="true">點擊下载</a></strong> </div>'
   $("#debug").html($debugtxt);
 </script>	
 
@@ -543,7 +536,7 @@ flush();
  * 
  */ 
 $sql=<<<EOL
-  UPDATE `work_log` SET `status`='{$sys_status}', `update_time`='{$now_time}',`file_size`={$file_size},`file_path`='{$file_path}{$_POST['xls_id']}.xls' WHERE (`id`='{$_POST['xls_id']}');
+  UPDATE `work_log` SET `status`='{$sys_status}', `update_time`='{$now_time}',`file_size`={$file_size},`file_path`='{$file_path}{$_POST['xls_id']}.xlsx' WHERE (`id`='{$_POST['xls_id']}');
 EOL;
 debug("exec {$sql}","info");
 $rs_local=$local_dbh->exec($sql);
