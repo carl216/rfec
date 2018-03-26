@@ -326,7 +326,7 @@ flush();
   $request_type=(strpos($_POST['xls_id'],'web')!==false) ? "1":"0";
   $sql=<<<EOL
  INSERT INTO `work_log` (`id`, `file_name`, `create_time`, `description`, `type`, `status`, `log_path`, `update_time`,`request_type`) VALUES 
- ('{$_POST['xls_id']}', '{$_POST['xls_id']}.xls','{$now_time}', '{$_POST['starttime']}至{$_POST['endtime']}', '{$_POST['xlstype']}', '0', '{$log_path}', '{$now_time}','{$request_type}');
+ ('{$_POST['xls_id']}', '{$_POST['xls_id']}.xlsx','{$now_time}', '{$_POST['starttime']}至{$_POST['endtime']}', '{$_POST['xlstype']}', '0', '{$log_path}', '{$now_time}','{$request_type}');
 EOL;
   debug("exec {$sql}","info");
   $rs_local=$local_dbh->exec($sql);
