@@ -373,7 +373,7 @@ if( $title == "sql" ){
 	$sql=$key;
 	break;
 }else{
-  $title_arr[$title]='string';
+  $title_arr[addslashes($title)]='string';
 }
 $key_arr[$i]=$key;
 }
