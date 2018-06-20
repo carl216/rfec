@@ -69,7 +69,7 @@ EOL;
 			$vodinfo_str=urldecode($oss_order_log['contentCategory']);
 			$vodinfo=json_decode($vodinfo_str);
 			$identityno=isset($vodinfo->categoryidentityno) ? $vodinfo->categoryidentityno : "";
-			get_cms_category($identityno,$category_top,$category_parent);
+			get_cms_category($identityno,$oss_order_log['contentId'],$category_top,$category_parent);
 			$cpid=isset($vodinfo->cpid) ?$vodinfo->cpid :$vodinfo->cpname;
 			get_cms_cpname($cpid,$cp_name);
 			if(isset($vodinfo->invalidtime)){
@@ -98,14 +98,14 @@ EOL;
 /**
  * 根据栏目编号获取栏目名称及父栏目名称
  */
-function get_cms_category($identityno,&$topcategoryname,&$parentcategorname){
+function get_cms_category($identityno,$conentid,&$topcategoryname,&$parentcategorname){
 	global $category_list,$cms_dbh,$category_top_format;
 	if(!$identityno){
 		return;
 	}else if($identityno < 0){
 		$key=abs($identityno);
 		$val=$category_list->$key;
-		$topcategoryname=$val;
+		$topcategoryname=get_cms_topcategoryname($conentid,$category_top_format);
 		$parentcategorname=$val;
 		return;
 	}
@@ -125,6 +125,35 @@ EOL;
 	   }
    }
 
+}
+
+function  get_cms_topcategoryname($conentid,$category_top_format){
+	if($conentid){
+		return '';
+	}
+	global $cms_dbh;
+	$sql=<<<EOL
+	SELECT `name` FROM category 
+	WHERE
+		identityno = SUBSTR((SELECT mc.category_identityno FROM minimetadata_category mc
+				WHERE
+					mc.`contentId` = '{$conentid}'
+				ORDER BY
+					(mc.category_identityno + 0) DESC
+				LIMIT 0,
+				1
+			),
+			1,
+			{$category_top_format}
+		);
+EOL;
+  
+   $rs_cms=$cms_dbh->query($sql);
+   $data_cms=$rs_cms->fetchAll(PDO::FETCH_NAMED);
+   foreach($data_cms as $category){
+			return $category['name'];
+	}
+	return '';
 }
 /**
  * 通过fuserid获取用户信息

@@ -104,7 +104,7 @@ EOL;
 			}
 		}else{
 			if($viewlog_data['begintime']!=''){
-				get_cms_category($viewlog_data['categoryidentityno'],$topcategoryname,$parentcategorname);	
+				get_cms_category($viewlog_data['categoryidentityno'],$viewlog_data['seriescontentid'],$topcategoryname,$parentcategorname);	
 				get_oss_userinfo($viewlog_data['fuserid'],$caid,$email,$extend_user_id);
 				get_oss_orderinfo($viewlog_data,$productname,$ordertime,$amount);
 				get_cms_cpname($viewlog_data['cpname'],$cpname);
@@ -112,7 +112,7 @@ EOL;
 					log_print("waring add viewlog session_id {$viewlog_data['id']} ,cpname undefined ".$viewlog);
 				}
 				$isfree=$amount>0 |0;	
-				$actualtime=900;
+				$actualtime=$viewlog_data['durationlen'];
 				if($viewlog_data['durationlen'] > 900){
 					$actualtime=rand(1,900);
 				}else if($viewlog_data['type'] == 1){
@@ -201,14 +201,14 @@ EOL;
 /**
  * 根据栏目编号获取栏目名称及父栏目名称
  */
-function get_cms_category($identityno,&$topcategoryname,&$parentcategorname){
+function get_cms_category($identityno,$conentid,&$topcategoryname,&$parentcategorname){
 	global $category_list,$cms_dbh,$category_top_format;
 	if(!$identityno){
 		return;
 	}else if($identityno < 0){
 		$key=abs($identityno);
 		$val=$category_list->$key;
-		$topcategoryname=$val;
+		$topcategoryname=get_cms_topcategoryname($conentid,$category_top_format);
 		$parentcategorname=$val;
 		return;
 	}
@@ -231,6 +231,32 @@ EOL;
    }
 
 }
+function  get_cms_topcategoryname($conentid,$category_top_format){
+	global $cms_dbh;
+	$sql=<<<EOL
+	SELECT `name` FROM category 
+	WHERE
+		identityno = SUBSTR((SELECT mc.category_identityno FROM minimetadata_category mc
+				WHERE
+					mc.`contentId` = '{$conentid}'
+				ORDER BY
+					(mc.category_identityno + 0) DESC
+				LIMIT 0,
+				1
+			),
+			1,
+			{$category_top_format}
+		);
+EOL;
+  
+   $rs_cms=$cms_dbh->query($sql);
+   $data_cms=$rs_cms->fetchAll(PDO::FETCH_NAMED);
+   foreach($data_cms as $category){
+			return $category['name'];
+	}
+	return '';
+}
+
 /**
  * 通过fuserid获取用户信息,guest用户直接返回guest
  */
