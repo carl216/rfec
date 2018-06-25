@@ -478,6 +478,10 @@ $sheet_line_max = isset($cfg['sheet_line_max']) ? $cfg['sheet_line_max'] : 50000
 $writer = new XLSXWriter();
 $writer->setAuthor('Carl'); 
 $sname='Sheet';
+if($len < 1){
+  $sname=$objTitle."0";
+  $writer->writeSheetHeader($sname, $title_arr );
+}
 for($i=0;$i< $len; $i++ ){
 if($i%$sheet_line_max==0){
   $sname=$objTitle.$i;
