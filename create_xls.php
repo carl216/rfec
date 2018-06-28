@@ -282,7 +282,7 @@ if(!isset($_POST["starttime"])||!isset($_POST["endtime"])){
   		  	$("#xls_id").val(xls_id);
 					var htmltxt='<div class="col-md-8">事务id: '+ $("#xls_id").val()+'</div>'
 					htmltxt+='<div class="col-md-8">起始時間: '+$("#starttime").val()+'</div>';
-    			htmltxt+='<div class="col-md-8">結束時間: '+$("#starttime").val()+'</div>';
+    			htmltxt+='<div class="col-md-8">結束時間: '+$("#endtime").val()+'</div>';
     			htmltxt+='<div class="col-md-8">類型: '+$("#xlstype").find("option:selected").text()+'</div>';
     			$('#mymessgae').html(htmltxt);
       		$('#gridSystemModal').modal('show')   

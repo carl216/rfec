@@ -120,11 +120,15 @@ EOL;
 				}
 				//初始影片结束播放时间= 现实收看时间+书签时间
 				$durationlen=$actualtime+$viewlog_data['playbegintime'];
+				$seriesname=urlencode($viewlog_data['seriesname']);
+				$programname=urlencode($viewlog_data['programname']);
+				$topcategoryname=urlencode($topcategoryname);
+				$parentcategorname=urlencode($parentcategorname);
 			$sql= <<<EOL
 			INSERT INTO `view_log` (`id`, `crm_id`, `product_name`, `category_top`, `category_parent`, 
 			`cp_name`, `series_name`,`program_name`, `ordertime`, `begintime`, `endtime`,`playbegintime`,`durationlen`, `caid`, `buserid`,
 			`email`, `amount`, `isfree`,`type`,`actualtime`,`timeshiftduration`,`contentid`) VALUES ('{$viewlog_data['id']}','{$viewlog_data['crmid']}', '{$productname}','{$topcategoryname}',
-			'{$parentcategorname}','{$cpname}', '{$viewlog_data['seriesname']}', '{$viewlog_data['programname']}' ,{$ordertime}, '{$viewlog_data['begintime']}',
+			'{$parentcategorname}','{$cpname}', '{$seriesname}', '{$programname}' ,{$ordertime}, '{$viewlog_data['begintime']}',
 			SUBDATE('{$viewlog_data['begintime']}',INTERVAL -{$actualtime} SECOND),'{$viewlog_data['playbegintime']}', '{$durationlen}','{$caid}', '{$extend_user_id}', '{$email}',
 			'{$amount}', '{$isfree}','{$viewlog_data['type']}','{$actualtime}',0,'{$viewlog_data['seriescontentid']}');
 EOL;
@@ -192,7 +196,7 @@ EOL;
 		if($data_oss){
 			$ordertime="'{$data_oss['ordertime']}'";
 			$amount=$data_oss['amount'];
-			$productname=$data_oss['productName'];
+			$productname=urlencode($data_oss['productName']);
 		}
 	}
 
@@ -202,6 +206,8 @@ EOL;
  * 根据栏目编号获取栏目名称及父栏目名称
  */
 function get_cms_category($identityno,$conentid,&$topcategoryname,&$parentcategorname){
+	$topcategoryname="";
+	$parentcategorname="";
 	global $category_list,$cms_dbh,$category_top_format;
 	if(!$identityno){
 		return;
@@ -229,6 +235,10 @@ EOL;
 		   $topcategoryname = $category['name'];
 	   }
    }
+   if(count($identityno)==$category_top_format){
+		$parentcategorname.="*";
+		$topcategoryname = get_cms_topcategoryname($conentid,$category_top_format);
+	}
 
 }
 function  get_cms_topcategoryname($conentid,$category_top_format){
@@ -239,6 +249,7 @@ function  get_cms_topcategoryname($conentid,$category_top_format){
 		identityno = SUBSTR((SELECT mc.category_identityno FROM minimetadata_category mc
 				WHERE
 					mc.`contentId` = '{$conentid}'
+				AND mc.`recycle` = 0	
 				ORDER BY
 					(mc.category_identityno + 0) DESC
 				LIMIT 0,

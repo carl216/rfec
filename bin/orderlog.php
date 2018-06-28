@@ -49,7 +49,7 @@ EOL;
 	foreach($data_oss as $oss_order_log){
 		$id=$oss_order_log['id'];
 		$crm_id=$oss_order_log['crmId'];
-		$product_name=$oss_order_log['productName'];
+		$product_name=urlencode($oss_order_log['productName']);
 		$category_top="";
 		$category_parent="";
 		$cp_name="";
@@ -78,7 +78,8 @@ EOL;
 			if(isset($vodinfo->validtime)){
 				$valid_time="'{$vodinfo->validtime}'";
 			}
-			$series_name=urldecode($vodinfo->seriesname);
+			$category_top=urlencode($category_top);
+			$category_parent=urlencode($category_parent);
 		}
 		get_oss_userinfo($oss_order_log['fuserId'],$ca_id,$email,$extend_user_id);
 
@@ -124,6 +125,10 @@ EOL;
 		   $topcategoryname = $category['name'];
 	   }
    }
+   if(count($identityno)==$category_top_format){
+	$parentcategorname.="*";
+	$topcategoryname = get_cms_topcategoryname($conentid,$category_top_format);
+	}
 
 }
 
@@ -138,6 +143,7 @@ function  get_cms_topcategoryname($conentid,$category_top_format){
 		identityno = SUBSTR((SELECT mc.category_identityno FROM minimetadata_category mc
 				WHERE
 					mc.`contentId` = '{$conentid}'
+				AND mc.`recycle` = 0
 				ORDER BY
 					(mc.category_identityno + 0) DESC
 				LIMIT 0,
