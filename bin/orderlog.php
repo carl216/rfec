@@ -125,7 +125,7 @@ EOL;
 		   $topcategoryname = $category['name'];
 	   }
    }
-   if(count($identityno)==$category_top_format){
+   if(strlen($identityno)==$category_top_format){
 	$parentcategorname.="*";
 	$topcategoryname = get_cms_topcategoryname($conentid,$category_top_format);
 	}
