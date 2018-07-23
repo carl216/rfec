@@ -80,6 +80,7 @@ EOL;
 			}
 			$category_top=urlencode($category_top);
 			$category_parent=urlencode($category_parent);
+			$series_name=$vodinfo->seriesname;
 		}
 		get_oss_userinfo($oss_order_log['fuserId'],$ca_id,$email,$extend_user_id);
 
