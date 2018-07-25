@@ -85,7 +85,7 @@ function parse_viewlog($viewlog){
 				//保护，影片实际收看时间大于现实收看时间时，正片自动换算偏移量，广告修改退出播放时间
 				$tmp_s=$durationlen-$timeshiftduration-$playbegintime-$actualtime;
 				if($tmp_s > 0 ){
-					if($viewlog_data['type']==1){
+					if($viewlog_data['type']==1||$viewlog_data['type']==2){
 						$timeshiftduration=$timeshiftduration + $tmp_s;
 					}else{
 						$durationlen=$durationlen-$tmp_s;
@@ -115,7 +115,7 @@ EOL;
 				$actualtime=$viewlog_data['durationlen'];
 				if($viewlog_data['durationlen'] > 900){
 					$actualtime=rand(1,900);
-				}else if($viewlog_data['type'] == 1){
+				}else if($viewlog_data['type'] == 1||$viewlog_data['type'] == 2){
 					$actualtime=rand(1,$viewlog_data['durationlen']);
 				}
 				//初始影片结束播放时间= 现实收看时间+书签时间
@@ -174,7 +174,7 @@ EOL;
 function get_oss_orderinfo($viewlog_data,&$productname,&$ordertime,&$amount){
 	$ordertime='null';
 	$amount=0;
-	if(empty($viewlog_data['fuserid'])||$viewlog_data['fuserid']=='guest'||$viewlog_data['type']==0){
+	if(empty($viewlog_data['fuserid'])||$viewlog_data['fuserid']=='guest'||$viewlog_data['type']==0||$viewlog_data['type']==2){
 		return;
 	}
 	if($viewlog_data['type'] > 0){
@@ -242,6 +242,9 @@ EOL;
 
 }
 function  get_cms_topcategoryname($conentid,$category_top_format){
+	if(trim($conentid)==''){
+		return '';
+	}
 	global $cms_dbh;
 	$sql=<<<EOL
 	SELECT `name` FROM category 
@@ -262,11 +265,13 @@ EOL;
   
    $rs_cms=$cms_dbh->query($sql);
    $data_cms=$rs_cms->fetchAll(PDO::FETCH_NAMED);
-   foreach($data_cms as $category){
-			return $category['name'];
+	foreach($data_cms as $category){
+		return $category['name'];
 	}
 	return '';
 }
+
+
 
 /**
  * 通过fuserid获取用户信息,guest用户直接返回guest

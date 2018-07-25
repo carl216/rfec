@@ -10,6 +10,7 @@ EOL;
     $xsl_total_list['xls_vod']=0;
     $xsl_total_list['xls_ad']=0;
     $xsl_total_list['xls_order']=0;
+    $xsl_total_list['xls_trailer']=0;
     foreach($data_list as $data){
        if($data['type']==1){
         $xsl_total_list['xls_vod']=$data['total'];
@@ -17,7 +18,9 @@ EOL;
         $xsl_total_list['xls_ad']=$data['total'];
        }else if($data['type']==3){
         $xsl_total_list['xls_order']=$data['total'];
-      } 
+       }else if($data['type']==4){
+        $xsl_total_list['xls_trailer']=$data['total'];
+      }  
     }
     $sql=<<<EOL
     SELECT count(*)as total FROM `work_log`;

@@ -77,6 +77,7 @@ include("nav.php");
  								 <option value="1" txt="vod" >點播記錄</option>
  								 <option value="2" txt="ad">廣告記錄</option>
   							 <option value="3" txt="order">訂購記錄</option>
+                 <option value="4" txt="order">片花記錄</option>
 
 							</select>
 		
