@@ -134,7 +134,7 @@ EOL;
 }
 
 function  get_cms_topcategoryname($conentid,$category_top_format){
-	if($conentid){
+	if(trim($conentid)==''){
 		return '';
 	}
 	global $cms_dbh;
