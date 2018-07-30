@@ -42,7 +42,7 @@ if($total < 1){
   <?php
 
 }else{
-           $xls_type_str=array("未知","点播","广告","订购");
+           $xls_type_str=array("未知","点播","广告","订购","片花");
            $request_type_str=array("cron","web");
            $status_str=explode(',',$cfg['xls_table_status_format']);
            $show_btn_color=$cfg['show_btn_color'] && $cfg['show_btn_color']> 0 ? "btn btn-primary" :"";
